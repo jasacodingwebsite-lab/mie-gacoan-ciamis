@@ -18,7 +18,7 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   verification: {
-    google: "hHhUcCjYE4Y6QUUrvjBUYo_0J9oOBOPpJWFIrk4Dbzw",
+    google: "h_q88jfkBaTtNkEpZQ_4mWkvzJ8F41w_45r208hC9LE",
   },
   metadataBase: new URL("https://mie-gacoan-ciamis.space-z.ai"),
   alternates: { canonical: "/" },
@@ -117,3 +117,4 @@ export default function RootLayout({
     </html>
   );
 }
+
