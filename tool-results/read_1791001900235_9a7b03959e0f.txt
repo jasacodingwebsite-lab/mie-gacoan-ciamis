@@ -1,0 +1,180 @@
+     1→# WORKLOG — Website Mie Gacoan Ciamis
+     2→
+     3→> Satu file koordinasi untuk semua agen. BACA DULU sebelum bekerja, APPEND setelah selesai. JANGAN overwrite isi agen lain.
+     4→
+     5→## SPESIFIKASI DESAIN GLOBAL (WAJIB DIPATUHI SEMUA AGEN)
+     6→
+     7→**Stack:** Next.js 16 App Router + TS, Tailwind CSS 4, shadcn/ui (folder `src/components/ui`), lucide-react, framer-motion, zustand persist (localStorage), sonner untuk toast.
+     8→
+     9→**Brand:**
+    10→- Warna: merah `bg-gacoan` (#e2242c), merah gelap `bg-gacoan-dark`, kuning `bg-gacoan-yellow` (#ffb800), oranye `gacoan-orange`, krem `bg-gacoan-cream` (#fdf9f3), hitam `bg-ink` (#17141a), `bg-ink-soft`.
+    11→- Font: display `font-display` (Archivo Black) untuk heading besar; body default (Plus Jakarta Sans).
+    12→- Gaya: youthful street-food, bold, rounded (button rounded-full, card rounded-2xl), shadow lembut, hover animation, TIDAK formal. No indigo/blue. Background putih/off-white `bg-background` default; section gelap pakai `bg-ink`.
+    13→- Ikon: lucide-react. Emoji boleh dipakai untuk fun factor (🍜🌶️🔥🥟).
+    14→
+    15→**API bersama (sudah ada, JANGAN dibuat ulang):**
+    16→- Data: `@/lib/data/menu` (MENU_ITEMS: MenuItem[], 20 item: mie/dimsum/minuman), `@/lib/data/site` (site, navLinks, spicyLevels, orderTimeline, paymentMethods), `@/lib/data/promos` (PROMOS), `@/lib/data/gallery` (GALLERY_ITEMS), `@/lib/data/reviews` (REVIEWS — CONTOH ulasan, wajib dilabeli "Contoh ulasan").
+    17→- Hooks data (gabung override admin): `useMenuData()`, `usePromoData()`, `useGalleryData()` dari `@/lib/hooks/use-menu-data`.
+    18→- Store: `useCart` + `cartTotals(items, serviceFee)` dari `@/lib/store/cart` (addItem({id,name,image,price,spicyLevel,qty,note,flyFrom}), incrementQty/decrementQty(key), removeItem(key), openCart/closeCart, isOpen). `useOrders` dari `@/lib/store/orders` (createOrder, updateStatus, STATUS_ORDER, tipe Order/OrderStatus). `useAdmin` dari `@/lib/store/admin` (settings.serviceFee, settings.outletName, settings.address, settings.openHour, settings.closeHour, settings.whatsapp, resetAll).
+    19→- Util: `formatRupiah(n)` dari `@/lib/format`. `flyToCart(el, imgSrc)` dari `@/lib/fly-to-cart`. `cn` dari `@/lib/utils`.
+    20→- Hooks: `useMounted()` dari `@/lib/hooks/use-mounted` (untuk guard hydration). `useOpenStatus()` dari `@/lib/hooks/use-open-status` → {isOpen, label, nowLabel}.
+    21→- Komponen bersama: `<Navbar/> <Footer/> <CartDrawer/> <FloatingCart/>` (sudah dipasang di layout, JANGAN dipasang lagi). `<MenuCard product index/>` + `<MenuCardSkeleton/>` dari `@/components/menu/menu-card`. `<ProductModal product open onOpenChange/>` dari `@/components/menu/product-modal`. `<SpicyMeter level size showLabel/>` dari `@/components/shared/spicy-meter`. `<Reveal>` dari `@/components/shared/reveal` (scroll reveal). `<SectionHeading kicker title subtitle align dark/>` dari `@/components/shared/section-heading`. `<OpenStatusBadge dark? showTime?/>` dari `@/components/shared/open-status`.
+    22→- Toast: `import { toast } from "sonner"`.
+    23→- Next Image: SELALU pakai `next/image` dengan `fill` + `sizes` + `className="object-cover"`.
+    24→- LINT RULE KETAT: dilarang setState langsung di dalam useEffect (`react-hooks/set-state-in-effect` = ERROR). Pakai handler/event atau `useMounted()` pattern. Jalankan `npx eslint <files>` sebelum selesai.
+    25→
+    26→**Gambar (public/images/):**
+    27→- Produk: `/images/products/{mie-gacoan,mie-hompimpa,mie-suit,pangsit-goreng,lumpia-udang,udang-keju,udang-rambutan,siomay-ayam,es-gobak-sodor,es-teklek,es-sluku-bathok,es-petak-umpet,lemon-tea,es-tea,milo,orange,thai-tea,thai-green-tea,vanilla-latte,es-coklat}.jpg` (digenerate AI, sedang berjalan — kalau file belum ada, MenuCard sudah punya fallback emoji 🍜, jadi aman).
+    28→- Section: `/images/hero-mie.jpg` (portrait 864x1152), `/images/dimsum-hero.jpg` (portrait), `/images/interior-wide.jpg`, `/images/exterior-wide.jpg` (landscape 1344x768), `/images/promo-combo.jpg`, `/images/promo-party.jpg`, `/images/promo-berempat.jpg` (1152x864).
+    29→- FOTO ASLI outlet (upload user, di-upscale): `/images/photos/{interior-1,interior-2,interior-3,exterior-front,exterior-mural,food-spread-1,food-spread-2,menu-board}.jpg` — prioritas dipakai untuk Galeri/About/Lokasi agar autentik (ingat alt text deskriptif).
+    30→
+    31→**Routing (App Router di `src/app/(shop)/` untuk halaman customer, `src/app/admin/` untuk admin):**
+    32→`/` `/menu` `/menu/[id]` `/cart` `/checkout` `/order/success` `/order/[id]` `/order/track` `/promo` `/about` `/gallery` `/location` `/contact` `/admin` `/admin/menu` `/admin/orders` `/admin/promo` `/admin/gallery` `/admin/settings`.
+    33→- Setiap halaman: `export const metadata` (title unik + description) untuk SEO.
+    34→- Semua halaman customer berada di route group `(shop)` (navbar+footer otomatis dari layout group).
+    35→- Tidak boleh horizontal scroll; responsive mobile-first; semua tombol min-h-11 (44px); list panjang `max-h-96 overflow-y-auto`.
+    36→- Footer sticky sudah ditangani layout (`flex min-h-svh flex-col` + `flex-1` main) — jangan rusak.
+    37→
+    38→---
+    39→
+    40→## LOG AGEN
+    41→
+    42→---
+    43→Task ID: 1
+    44→Agent: Z.ai (orchestrator)
+    45→Task: Setup foundation — tema, data, store, komponen bersama, gambar.
+    46→
+    47→Work Log:
+    48→- Proses foto upload: upscale 4x + unsharp mask → `public/images/photos/*.jpg` (8 foto asli outlet).
+    49→- Script `scripts/gen-images.mjs`: generate 27 gambar (20 produk + hero/interior/eksterior/promo) via z-ai SDK + sharp→JPEG; berjalan background (log: `imggen.log`), sekuensial + retry backoff (429 rate limit).
+    50→- `globals.css`: brand token Mie Gacoan (gacoan/yellow/orange/cream/ink), font display Archivo Black + Plus Jakarta Sans, scrollbar custom, pattern dots.
+    51→- `app/layout.tsx`: metadata SEO lengkap (title, description, OG, twitter), favicon `/favicon.svg`.
+    52→- Data: `site.ts` (outlet, jam 08–23, navLinks, spicyLevels 0–8, orderTimeline, paymentMethods), `menu.ts` (20 item demo + tipe), `promos.ts`, `gallery.ts` (foto asli + ilustrasi, labeled), `reviews.ts` (CONTOH ulasan).
+    53→- Store (zustand persist localStorage): `cart.ts` (addItem dgn fly-to-cart + toast, drawer state, cartTotals dgn service fee), `orders.ts` (createOrder dgn ID `GCN-YYYYMMDD-XXX`, updateStatus, history), `admin.ts` (menuOverrides/customItems/promos/gallery/settings — serviceFee 2000 default).
+    54→- Hooks: `use-mounted` (useSyncExternalStore), `use-open-status` (buka 08–23 dari settings), `use-menu-data` (merge override admin).
+    55→- Komponen: `navbar.tsx` (sticky, promo strip, links, cart badge `[data-cart-icon]`, CTA, hamburger Sheet), `footer.tsx` (dark, kolom menu/order/info/outlet, social), `cart-drawer.tsx` (Sheet kanan, qty stepper, subtotal/service/total, empty state 🛒), `floating-cart.tsx` (bottom bar saat cart>0, hidden di /checkout /cart /admin), `menu-card.tsx` (+ quick add & modal, badge Populer/BARU/Habis, skeleton), `product-modal.tsx` (level pedas 0–8 grid, qty, catatan, tambah ke keranjang), `spicy-meter.tsx`, `section-heading.tsx`, `reveal.tsx`, `open-status.tsx`.
+    56→- Route group `(shop)/layout.tsx` (navbar+main flex-1+footer+drawer+floating) & placeholder `(shop)/page.tsx`.
+    57→- Fix lint: `set-state-in-effect` di use-mounted (useSyncExternalStore) & product-modal (reset via handler onOpenChange).
+    58→
+    59→Stage Summary:
+    60→- Foundation selesai & lint bersih. Semua agen WAJIB pakai API bersama di atas, jangan bikin ulang.
+    61→- Gambar produk digenerate di background; jika ada yang gagal, MenuCard fallback emoji — tidak blocker.
+    62→- ATURAN PENULISAN FILE: agents hanya boleh menulis file di scope masing-masing (lihat task masing-masing). Jangan edit file foundation.
+    63→
+    64→---
+    65→Task ID: 7-d
+    66→Agent: full-stack-developer
+    67→Task: Halaman informasi /promo /about /gallery /location /contact (page.tsx server+metadata + client content components).
+    68→
+    69→Work Log:
+    70→- /promo: `promo-content.tsx` — grid md:2/lg:3 kartu promo dari `usePromoData()` (AnimatePresence + layout + stagger mount), foto aspect 16/10 rounded-t + badge `bg-gacoan` absolute top-3 left-3, harga "Mulai Rp…" font-display gacoan + coret normal `Math.round(price*1.35/500)*500`, terms 11px, 2 tombol (Pesan Sekarang → /menu, Klaim via WA wa.me prefilled per promo), hover lift+shadow, strip disclaimer bg-gacoan-cream (site.priceDisclaimer + "Promo pada halaman ini adalah demo."), CTA akhir bg-ink "MASIH BINGUNG PILIH? 🍜" → /menu. Skeleton grid via `useMounted()` (pola foundation, guard zustand persist hydration).
+    71→- /about: hero "LEBIH DARI SEKADAR MIE", komposisi foto interior-1 (4/5 rounded-3xl) + overlay exterior-mural kecil rotate-3 border-4 putih, cerita brand 3 paragraf santai (tanpa klaim franchise resmi) + bullet nilai 🌶️🥟🛋️, stats band 3 card (100+ / 0–8 / 7 Hari) Reveal stagger, strip foto horizontal 4 foto asli (overflow-x-auto no-scrollbar snap), CTA bg-gacoan "Mau lihat langsung? 👀" → /location & /menu.
+    72→- /gallery: masonry `columns-2 md:3 lg:4` + `break-inside-avoid`, item aspect dinamis (tall → 3/4, else 4/3), next/image fill + hover scale-105, overlay gradient bawah caption + badge "📸 Foto Asli" (bg-gacoan-yellow) / "✏️ Ilustrasi" (bg-white/80), fallback emoji 📸 via onError (file ilustrasi masih digenerate background). Lightbox `gallery-lightbox.tsx`: fixed z-[90] bg-black/90 backdrop-blur + AnimatePresence, counter "n / total", prev/next wrap-around (h-12 w-12 bg-white/10 hover:bg-gacoan, stopPropagation), close X, klik backdrop tutup, keyboard Esc/←/→ via window keydown effect (setState hanya di handler), body scroll-lock effect + cleanup (tanpa setState).
+    73→- /location: grid lg:5 — kartu info (col-span-2): nama outlet, OpenStatusBadge showTime, list MapPin alamat / Clock jam / Phone tel: / Star 4.9 + ratingNote, tombol "Rute di Google Maps" (site.mapsUrl) & "Simpan Lokasi" (clipboard + toast.success, catch → toast.error); peta iframe site.mapsEmbed col-span-3 rounded-3xl min-h-[420px] grayscale-[30%] hover:grayscale-0; 3 card fasilitas (Bike/Users/Wifi); CTA kecil → /contact.
+    74→- /contact: grid lg:5 — kiri (col-span-2) kartu WA (tombol "Chat WhatsApp" prefilled), Telepon tel:, sosial (Instagram/Music2 utk TikTok/Facebook), card jam operasional + OpenStatusBadge; kanan (col-span-3) form Nama*/Email-WA*/Pesan* (Input/Textarea shadcn) → validasi + Loader2 spin di tombol + setTimeout 800ms + toast.success "(demo)" + reset; FAQ Accordion shadcn 4 item (reservasi rombongan, level 8 GACOAN MODE, parkir, pesan antar → /checkout disebut).
+    75→- Metadata unik (title + description Indonesia) di kelima page.tsx. Lint scope `npx eslint (shop)/promo (shop)/about (shop)/gallery (shop)/location (shop)/contact src/components/pages/` → 0 error 0 warning (tanpa setState sinkron di effect; data hooks diguard useMounted).
+    76→
+    77→Stage Summary:
+    78→- Lima halaman informasi selesai, semua 200 via curl, lint bersih, seluruh foto next/image + alt deskriptif, tombol ≥44px, mobile-first, tanpa horizontal scroll (kecuali strip galeri about). `/promo` & `/gallery` pakai data hooks (override admin jalan); foto section `/images/*.jpg` digenerate background — sisa `promo-berempat.jpg` otomatis muncul saat script selesai (fallback emoji aktif sementara).
+    79→
+    80→---
+    81→Task ID: 7-a
+    82→Agent: full-stack-developer
+    83→Task: Membangun HOMEPAGE (route `/`) — 10 section lengkap sesuai spesifikasi desain global.
+    84→
+    85→Work Log:
+    86→- Replace `src/app/(shop)/page.tsx` menjadi server component + `export const metadata` (title & description SEO homepage), me-render 10 komponen home berurutan.
+    87→- `src/components/home/hero.tsx`: min-h-[92svh] grid lg:grid-cols-2, pattern-dots + 3 blob blur dekoratif (gacoan/yellow/orange); kiri: badge pill "🔥 MIE PEDAS FAVORIT", H1 font-display "PEDASNYA BIKIN / NAGIH!" (aksen SVG squiggle kuning di bawah "NAGIH!"), 2 button rounded-full (🍜 Lihat Menu / 🛒 Pesan Sekarang → /menu), trust bar (OpenStatusBadge showTime + ⭐ 4.9 + parkir gratis); kanan: /images/hero-mie.jpg fill rounded-3xl aspect-[4/5] + 3 floating badge framer-motion (y infinite, delay 0/0.8/1.6); animasi load staggered initial/animate (bukan whileInView).
+    88→- `src/components/home/quick-order.tsx`: 2 card Pickup/Delivery (icon ShoppingBag/Bike lingkaran merah), hover -translate-y-1 + border-gacoan, button → /checkout?method=pickup|delivery.
+    89→- `src/components/home/favorite-menu.tsx`: tab pill client state (Semua/Mie/Dimsum/Minuman/Paket) min-h-11, AnimatePresence mode="popLayout" + layout untuk transisi grid; Semua = sort popular dulu max 8, kategori = filter max 8 via `<MenuCard/>`; tab Paket = 3 promo card dari usePromoData() (badge, "Mulai Rp…", button → /promo); CTA "Lihat Semua Menu →".
+    90→- `src/components/home/spicy-levels.tsx`: bg-ink pattern-dots-light, grid cols-3 → lg:cols-9 dari spicyLevels; emoji 🌶️ repeat sesuai chilies (level 0 = "◦"), warna bertingkat (0-2 muted → 3-4 yellow → 5-6 orange → 7 merah → 8 bg-gacoan "GACOAN MODE 🔥"), whileHover scale 1.05 y -4.
+    91→- `src/components/home/about-preview.tsx`: foto interior-1.jpg rounded-3xl aspect 4/5 + overlay food-spread-1.jpg (-bottom-6 -right-6 rotate-3 border-4), stats 100+/0–8/7 Hari (font-display text-gacoan), button → /about.
+    92→- `src/components/home/promo-section.tsx`: bg-gacoan-cream, 3 card promo (aspek 16/10, badge, harga coret = price*1.35 dibulatkan ke 500 via Math.round((p*1.35)/500)*500), hover lift.
+    93→- `src/components/home/gallery-preview.tsx`: 8 foto pertama useGalleryData(), square rounded-2xl, hover scale-110 + overlay caption gradient slide-up, badge "Foto Asli" (icon Camera) jika source==="foto-asli", CTA → /gallery.
+    94→- `src/components/home/location-section.tsx`: card info (MapPin/Clock/Phone/Star + OpenStatusBadge showTime) + button "Rute di Google Maps" (mapsUrl, target _blank) & "Simpan Lokasi" (clipboard site.address + toast.success sonner); kanan iframe site.mapsEmbed (title, lazy, rounded-2xl, min-h-[360px], referrerPolicy, allowFullScreen).
+    95→- `src/components/home/reviews-section.tsx`: rating besar "⭐ 4.9" + site.ratingNote, scroll horizontal snap-x no-scrollbar, kartu REVIEWS (avatar inisial bg-gacoan/10, ⭐ per stars, label "Contoh ulasan" tiap kartu).
+    96→- `src/components/home/cta-section.tsx`: bg-ink + hero-mie.jpg opacity-20 absolute, heading "LAGI NGIDAM MIE PEDAS?", button besar kuning h-14 rounded-full → /menu, 4 emoji 🌶️🔥🥟🍜 floating infinite (framer-motion animate, tanpa useEffect).
+    97→- FIX BLOCKER (penyimpangan, lihat Stage Summary): `src/components/menu/product-modal.tsx` — tambah 1 baris `import { useState } from "react"` yang hilang (ReferenceError useState → GET / 500). Perubahan minimal lain tidak disentuh.
+    98→- Lint: `npx eslint "src/app/(shop)/page.tsx" "src/components/home/"` → 0 error (juga product-modal.tsx). Tidak ada setState di useEffect; semua animasi loop pakai animate props.
+    99→
+   100→Stage Summary:
+   101→- HOMEPAGE SELESAI: 10 section — Hero → QuickOrder → FavoriteMenu (tab dinamis) → SpicyLevels → AboutPreview → Promo → Gallery → Location (maps + copy alamat) → Reviews (labeled demo) → CTA. Semua pakai API bersama (MenuCard, SectionHeading, Reveal, OpenStatusBadge, useMenuData/usePromoData/useGalleryData, formatRupiah, site, spicyLevels, REVIEWS) — tidak ada yang dibuat ulang.
+   102→- Verifikasi: curl / → HTTP 200, semua judul section ter-render ("PEDASNYA", "NAGIH", dst. dicek grep semua ada).
+   103→- CATATAN UNTUK AGEN LAIN: (1) product-modal.tsx sempat rusak (import useState hilang) — sudah diperbaiki minimal; jangan hapus import itu. (2) Gambar section (hero-mie, promo-*, interior-wide, exterior-wide) digenerate background oleh scripts/gen-images.mjs — hero & dimsum sudah OK, sisanya menyusul; komponen tetap aman karena next/image hanya 404 optimizer tanpa mematikan render.
+   104→
+   105→---
+   106→Task ID: 7-c
+   107→Agent: full-stack-developer
+   108→Task: Alur PESANAN lengkap — /cart, /checkout, /order/success, /order/[id], /order/track (client components di src/components/checkout/).
+   109→
+   110→Work Log:
+   111→- `cart-view.tsx` + `(shop)/cart/page.tsx`: list item card putih rounded-2xl (foto 20x20 rounded-xl next/image fill+sizes, chip "🌶️ Level N", catatan italic, stepper h-10 w-10 rounded-full, line total text-gacoan bold, tombol Trash2 hover:text-destructive); ringkasan sticky lg:col-span-1 (Subtotal/Service dari settings.serviceFee/Total besar) + "Lanjut Checkout" h-12 rounded-full + "＋ Lanjut Belanja" outline + "Kosongkan Keranjang" (clear + toast); empty state 🛒; skeleton animate-pulse saat !mounted.
+   112→- `checkout-form.tsx` + `(shop)/checkout/page.tsx` (dibungkus Suspense karena useSearchParams): default metode dari query ?method=; grid lg:grid-cols-3 (form kiri, summary sticky top-24 kanan); Section 1 DATA PEMESAN (nama*, WhatsApp* validasi regex 9–15 digit setelah strip/spasi dibuang, catatan opsional); Section 2 METODE PESAN radio-card Store/Bike + Select outlet (pickup) / Textarea alamat* (delivery); Section 3 METODE PEMBAYARAN radio-card grid-2 dari paymentMethods (default QRIS) + indikator dot; summary compact list item + disclaimer harga; submit "Buat Pesanan" → validasi (toast.error + border merah field invalid) → loading 900ms (Loader2 animate-spin hanya di tombol) → createOrder (outlet "Mie Gacoan Ciamis") → clear cart → router.push /order/success?id=; catch → toast error; empty state keranjang kosong.
+   113→- `order-success.tsx` + `(shop)/order/success/page.tsx` (Suspense): id dari query → cari di useOrders (guard mounted); tidak ada → card "Pesanan tidak ditemukan" + link lacak; ada → motion.div spring, lingkaran hijau Check, H1 "Pesanan Berhasil! 🎉", chip emerald "Pesanan diterima", card nomor pesanan mono + tombol copy (clipboard + toast + ikon berubah Check 2s), info ringkas (metode+outlet/alamat, pembayaran, jumlah item, total), mini timeline horizontal 5 step (step 1 aktif merah, sisanya abu), buttons Lacak Pesanan → /order/{id} & Kembali ke Menu.
+   114→- `order-detail.tsx` + `(shop)/order/[id]/page.tsx`: server page Next 16 `params: Promise<{id}>` + `await params`, pass id ke client; cari order by id (decodeURIComponent + uppercase); header "Pesanan {id}" + tanggal formatDateTime id-ID + chip status besar (PENDING yellow-100, CONFIRMED emerald-100, PREPARING bg-gacoan, READY bg-gacoan-yellow, COMPLETED emerald-600, CANCELLED red-100); timeline vertikal 5 langkah (Check emerald jika lewat, Flame bg-gacoan animate-pulse jika aktif, dot abu jika belum, garis penghubung, timestamp jam "HH.mm" dari order.history); CANCELLED → banner merah + riwayat status tetap tampil; detail items (foto kecil, level, qty, harga) + subtotal/service/total; info pemesan/WA/metode/alamat/pembayaran/catatan; tombol "Batalkan Pesanan" (hanya PENDING, AlertDialog konfirmasi → updateStatus CANCELLED + toast), "Pesan Lagi" → /menu, "Kembali ke Beranda" → /.
+   115→- `order-track.tsx` + `(shop)/order/track/page.tsx`: card tengah max-w-md, input mono "GCN-20261002-001", button Lacak (Search); submit cari di store → router.push /order/{id}, tidak ada → inline error merah (state, bukan cuma toast); bonus chips "PESANAN TERAKHIR" (4 terakhir, klik → detail); info kecil "Nomor pesanan didapat setelah checkout."
+   116→- Semua page.tsx server component dengan metadata title unik; semua render store pakai useMounted guard (nol hydration mismatch); NOL useEffect (tidak ada setState sinkron di effect); touch target ≥44px; summary stacked di mobile.
+   117→- Lint `npx eslint "src/app/(shop)/cart" "src/app/(shop)/checkout" "src/app/(shop)/order" src/components/checkout/` → 0 error 0 warning.
+   118→
+   119→Stage Summary:
+   120→- Alur pesanan selesai & terverifikasi: /cart → /checkout → /order/success → /order/[id] (+ /order/track) semua 200 via curl, lint bersih, dev.log tanpa error dari halaman scope ini.
+   121→- Checkout menghasilkan order via useOrders.createOrder (ID GCN-YYYYMMDD-XXX otomatis, status PENDING + history), cart clear otomatis, redirect success dengan query id.
+   122→- Data order (PENDING dst.) bisa dimutasi dari Admin → /admin/orders (updateStatus) — halaman detail reaktif via zustand tanpa polling.
+   123→- Catatan: 404 gambar /images/promo-*.jpg & exterior-wide.jpg di dev.log berasal dari halaman agen lain (image generation background), bukan scope task ini.
+   124→---
+   125→Task ID: 7-b
+   126→Agent: full-stack-developer
+   127→Task: Halaman MENU (katalog + detail produk) — /menu & /menu/[id].
+   128→
+   129→Work Log:
+   130→- `src/app/(shop)/menu/page.tsx`: server component, metadata absolute "Menu Mie Gacoan Ciamis — Mie Pedas, Dimsum & Minuman" + OG/keywords, render <MenuCatalog/>.
+   131→- `src/components/menu/menu-catalog.tsx` (client): header kicker "MENU KAMI" + h1 font-display "PILIH SANTAPANMU" + site.priceDisclaimer; search realtime rounded-full (filter nama+deskripsi lowercase includes, contoh "udang" → Udang Keju/Rambutan/Lumpia Udang); sort Select shadcn (Terpopuler default popular-first, Harga terendah/tertinggi, Terbaru via addedAt desc); desktop sidebar sticky top-24 w-56 (Semua/🍜 Mie/🥟 Dimsum/🥤 Minuman + badge jumlah, aktif bg-gacoan text-white), mobile tab horizontal scroll no-scrollbar sticky top-[64px] z-30 bg-background/95 backdrop-blur; grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 <MenuCard/>; !useMounted() → 8 <MenuCardSkeleton/>; judul sub kategori saat kategori ≠ Semua ("🍜 Mie — 3 menu"); counter "Menampilkan X dari Y menu"; empty state 🔍 "Menu tidak ditemukan" + Reset Pencarian; error state card "Menu sedang mengalami gangguan." + Coba Lagi (reset semua filter) saat daftar kosong total; badge count digate useMounted untuk hindari hydration mismatch dengan override admin.
+   132→- `src/app/(shop)/menu/[id]/page.tsx`: generateStaticParams dari MENU_ITEMS, generateMetadata (title absolute `${name} — Mie Gacoan Ciamis`, desc, OG image produk), id tak dikenal → kartu "Menu tidak ditemukan" + tombol kembali /menu (tanpa throw notFound()).
+   133→- `src/components/menu/product-detail.tsx` (client): breadcrumb Beranda/Menu/{nama}; grid lg:grid-cols-2 — foto aspect-square rounded-3xl (badge Populer/BARU overlay, pill "level pedas 0–8", overlay Habis) + kanan (chip kategori, h1 font-display 3xl, desc, harga font-display text-gacoan, tombol Salin Link → navigator.clipboard + toast "Link menu disalin!"); PILIH LEVEL PEDAS 🌶️ grid-cols-3 Level 0–8 (border-2 rounded-xl min-h-11, aktif border-gacoan bg-gacoan/10, SpicyMeter per tombol, default 4, helper label spicyLevels); stepper jumlah [-]/[+] h-10 w-10 rounded-full min 1 max 99; catatan Textarea max 140 + counter; CTA "🛒 Tambahkan ke Keranjang · Rp{harga×qty}" → addItem({..., spicyLevel, qty, note, flyFrom: btnRef}) + setelah tambah muncul "Lihat Keranjang" → openCart(); info card OpenStatusBadge showTime + Ambil di outlet (site.shortAddress) + "Pesan antar tersedia"; COBA JUGA 4 MenuCard se-kategori exclude id (skeleton saat !mounted); live data via useMenuData dipakai setelah mount (fallback data statis server) agar bebas hydration mismatch.
+   134→- Lint `npx eslint "src/app/(shop)/menu/**/*.tsx" src/components/menu/` → 0 error. Tanpa useEffect sama sekali (tak ada setState dalam effect); semua reset via handler.
+   135→
+   136→Stage Summary:
+   137→- /menu dan /menu/[id] live & terverifikasi: curl 200, "PILIH SANTAPANMU", "Mie Gacoan", "PILIH LEVEL PEDAS", title SEO, kartu not-found custom semuanya muncul di SSR HTML.
+   138→- Seluruh grid produk/katalog digate useMounted → SSR aman, skeleton (bukan spinner) saat loading.
+   139→- MenuCard/ProductModal foundation dipakai apa adanya (tidak diedit); ProductDetail ditulis sendiri di scope file.
+   140→---
+   141→Task ID: 7-e
+   142→Agent: full-stack-developer
+   143→Task: Admin Mini Panel — shell + 6 halaman (Dashboard, Menu, Orders, Promo, Galeri, Pengaturan).
+   144→
+   145→Work Log:
+   146→- Baca foundation: store admin/orders/cart, hook use-menu-data/use-mounted, data menu/promos/gallery/site, globals.css, layout (shop) — tidak ada file foundation yang diedit.
+   147→- `src/components/admin/shared.tsx` (file tambahan dalam scope admin): AdminPageHeader (judul font-display + deskripsi), ORDER_STATUS_LABELS (Indonesia), OrderStatusBadge (warna badge sesuai spek), AdminSkeleton.
+   148→- `src/app/admin/layout.tsx` ('use client'): shell admin di luar (shop) — sidebar desktop w-60 bg-ink sticky h-svh (logo MIE GACOAN + badge Admin bg-gacoan-yellow text-ink + label "Demo tanpa login"), 6 nav item lucide dengan active bg-gacoan rounded-xl, bawah: tombol "Lihat Website" (/) + catatan "Demo admin — data tersimpan di localStorage browser ini."; mobile = top bar sticky bg-ink + hamburger Sheet side-left berisi SidebarContent yang sama; main p-4 sm:p-8 bg-background min-h-svh. Tombol reset TIDAK ditaruh di sidebar (hanya di Settings).
+   149→- `/admin` + `dashboard.tsx`: 4 stat card (grid 2/4: Total Order, Total Revenue formatRupiah non-CANCELLED text-gacoan, Total Produk dari useMenuData, Pesanan Hari Ini via toDateString), card Pesanan Terbaru max 5 (id mono, waktu singkat id-ID, total, badge status) + link Kelola →, empty state 🛒 + CTA /checkout, skeleton saat !mounted.
+   150→- `/admin/menu` + `menu-manager.tsx`: toolbar (search nama, Select kategori, tombol Tambah), tabel shadcn dalam overflow-x-auto (foto next/image 48px, badge Populer/BARU/Habis, badge "diubah" utk override, badge "custom"), switch aktif/nonaktif (custom → updateCustomItem, default → setMenuOverride available), Edit Dialog (nama/kategori/harga/deskripsi/URL foto + Select path /images/products + switch Populer/Baru/Tersedia) → updateCustomItem atau setMenuOverride + toast "Menu diperbarui!"; Tambah Dialog → id slug+Date.now().toString(36), addCustomItem (isNew true otomatis); hapus default = AlertDialog soft-delete setMenuOverride({deleted:true}) → baris strikethrough + tombol Pulihkan (removeMenuOverride); hapus custom = removeCustomItem dengan confirm; tombol ↺ reset override per item.
+   151→- `/admin/orders` + `orders-manager.tsx`: statistik mini (total, revenue non-batal, chips count per status yang bisa diklik untuk filter), filter Select status + search id/nama, tabel (ID mono, waktu id-ID, pelanggan+WA, chip metode Ambil Sendiri/Diantar, pembayaran dari paymentMethods, total, Select status inline → updateStatus + toast "Status pesanan diperbarui!", aksi detail Dialog: daftar item + level pedas + catatan, subtotal/service/total, alamat, riwayat status timeline + link /order/track), empty state + CTA ke /checkout.
+   152→- `/admin/promo` + `promo-manager.tsx`: card list (default + custom), harga & deskripsi editable inline per field dengan tombol simpan → setPromoOverride/updateCustomPromo (remount card via key agar draft ikut nilai baru, tanpa useEffect), terms tampil; Sembunyikan default = setPromoOverride({deleted:true}) → card ringkas + Pulihkan (removePromoOverride); hapus custom = removeCustomPromo dengan confirm; Dialog Tambah Promo (judul/desc/harga/badge/Select foto promo/preview/terms) → addCustomPromo id slug unik.
+   153→- `/admin/gallery` + `gallery-manager.tsx`: grid 2/3/4 kolom dari GALLERY_ITEMS + item custom; toggle switch Tampil/Sembunyi per item berbasis array penuh (setGalleryItems([...effective]/filter), effective = galleryItems ?? GALLERY_ITEMS — item custom di-switch → konfirmasi hapus), caption editable inline + simpan, Dialog Tambah Foto (URL + Select gambar tersedia, alt, caption, switch tall, preview) → setGalleryItems([...effective, newItem]), tombol Kembalikan Default → setGalleryItems(null).
+   154→- `/admin/settings` + `settings-manager.tsx`: form (Nama Outlet, Alamat Textarea, Service Fee + hint "Rp, contoh 2000", Select Jam Buka/Tutup 0–23 label 08.00, WhatsApp) → setSettings + toast; Live Preview card (nama, alamat, jam "08.00 — 23.00", service fee formatRupiah) mengikuti draft form sebelum disimpan; form di-remount via key JSON(settings) agar sinkron saat resetAll; DANGER ZONE border-destructive: Reset Semua Data Admin (AlertDialog → resetAll + toast) dan Hapus Riwayat Pesanan (AlertDialog → clearOrders + toast).
+   155→- Semua page.tsx server component dengan metadata absolute (title "… — Mie Gacoan Ciamis", robots noindex); semua komponen client di-guard useMounted + skeleton (tanpa setState di useEffect sama sekali).
+   156→- Ikon `UtensilsCrossing` tidak ada di lucide-react → dipakai nama resmi `UtensilsCrossed` (visual sama, menu makan).
+   157→
+   158→Stage Summary:
+   159→- Admin mini panel selesai: /admin, /admin/menu, /admin/orders, /admin/promo, /admin/gallery, /admin/settings — semua curl 200, lint 0 error, tsc bersih untuk file admin.
+   160→- Semua perubahan tersimpan via store zustand persist (gacoan-admin-v1 / gacoan-orders-v1) dan langsung memengaruhi tampilan customer lewat useMenuData/usePromoData/useGalleryData/useAdmin.settings.
+   161→- File scope: src/app/admin/{layout,page}.tsx, src/app/admin/{menu,orders,promo,gallery,settings}/page.tsx, src/components/admin/{shared,dashboard,menu-manager,orders-manager,promo-manager,gallery-manager,settings-manager}.tsx.
+   162→
+   163→---
+   164→Task ID: 8
+   165→Agent: Z.ai (orchestrator, QA)
+   166→Task: QA akhir — TypeScript, lint, browser end-to-end, responsivitas.
+   167→
+   168→Work Log:
+   169→- Fix TS error framer-motion di hero.tsx (Variants typing + floatY as const).
+   170→- npx tsc --noEmit: 0 error di src/. bun run lint: bersih.
+   171→- Semua 20 route return 200 (/, /menu, /menu/[id], /cart, /checkout, /order/*, /promo, /about, /gallery, /location, /contact, /admin/*).
+   172→- 27/27 gambar AI selesai digenerate (imggen.log DONE failed=0) + 8 foto asli outlet di /images/photos.
+   173→- Browser E2E (agent-browser): hero render ✓; quick add → toast "Mie Gacoan berhasil ditambahkan" + badge cart 1 + floating cart Rp17.000 ✓; cart drawer (item, level, qty, subtotal/service/total) ✓; checkout form terisi → Buat Pesanan → redirect /order/success?id=GCN-20261002-001 ✓; halaman tracking timeline ✓; admin dashboard stat (1 order, Rp17.000, 20 produk) ✓; admin ubah status PENDING→PREPARING dan timeline customer ter-update otomatis ✓; search "udang" realtime (4 hasil) ✓; /menu/[id] level picker 0–8 ✓; lightbox galeri (open/next/escape, scroll restore) ✓; hamburger mobile + sheet nav ✓.
+   174→- Responsivitas: 390x844 (mobile, grid 2 kolom), 768x1024 (tablet, grid 3), 1280x800 (desktop, grid 4), 844x390 (landscape) — scrollWidth-clientWidth = 0 (tidak ada horizontal scroll).
+   175→- Footer sticky terverifikasi di halaman pendek (/cart, /order/track).
+   176→- Catatan: indikator "1 Issue" di Next dev tools = diff hydration aria-controls milik Radix Select saat Fast Refresh (hanya dev-mode, benign).
+   177→
+   178→Stage Summary:
+   179→- Website lengkap & terverifikasi end-to-end. Semua fitur inti berfungsi: menu→cart→checkout→order→tracking→admin.
+   180→
