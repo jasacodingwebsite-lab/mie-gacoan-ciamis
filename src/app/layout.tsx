@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   verification: {
     google: "h_q88jfkBaTtNkEpZQ_4mWkvzJ8F41w_45r208hC9LE",
   },
-  metadataBase: new URL("https://mie-gacoan-ciamis.space-z.ai"),
+  metadataBase: new URL("https://mie-gacoan-ciamis.netlify.app"),
   alternates: { canonical: "/" },
   applicationName: "Mie Gacoan Ciamis",
   category: "restaurant",
@@ -83,18 +83,18 @@ export default function RootLayout({
     "@graph": [
       {
         "@type": "WebSite",
-        "@id": "https://mie-gacoan-ciamis.space-z.ai/#website",
-        "url": "https://mie-gacoan-ciamis.space-z.ai/",
+        "@id": "https://mie-gacoan-ciamis.netlify.app/#website",
+        "url": "https://mie-gacoan-ciamis.netlify.app/",
         "name": "Mie Gacoan Ciamis",
         "inLanguage": "id-ID",
         "description": "Website informasi dan pemesanan demo untuk menu mie pedas, dimsum, minuman, promo, galeri, dan lokasi di Ciamis.",
       },
       {
         "@type": "WebPage",
-        "@id": "https://mie-gacoan-ciamis.space-z.ai/#webpage",
-        "url": "https://mie-gacoan-ciamis.space-z.ai/",
+        "@id": "https://mie-gacoan-ciamis.netlify.app/#webpage",
+        "url": "https://mie-gacoan-ciamis.netlify.app/",
         "name": "Mie Gacoan Ciamis | Mie Pedas, Dimsum & Minuman",
-        "isPartOf": { "@id": "https://mie-gacoan-ciamis.space-z.ai/#website" },
+        "isPartOf": { "@id": "https://mie-gacoan-ciamis.netlify.app/#website" },
         "inLanguage": "id-ID",
       },
     ],
@@ -117,5 +117,6 @@ export default function RootLayout({
     </html>
   );
 }
+
 
 

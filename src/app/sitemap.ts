@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { MENU_ITEMS } from "@/lib/data/menu";
 
-const baseUrl = "https://mie-gacoan-ciamis.space-z.ai";
+const baseUrl = "https://mie-gacoan-ciamis.netlify.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -32,3 +32,4 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [...pages, ...menuPages];
 }
+

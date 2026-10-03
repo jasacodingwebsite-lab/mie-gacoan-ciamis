@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = "https://mie-gacoan-ciamis.space-z.ai";
+  const baseUrl = "https://mie-gacoan-ciamis.netlify.app";
 
   return {
     rules: [
@@ -15,3 +15,4 @@ export default function robots(): MetadataRoute.Robots {
     host: baseUrl,
   };
 }
+
